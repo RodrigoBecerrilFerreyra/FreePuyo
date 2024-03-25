@@ -47,7 +47,9 @@ typedef struct PuyoBoard
 
 // board related functions
 PuyoBoard *initializeBoard(unsigned int rows, unsigned int columns, unsigned int hiddenrows);
-void destroyBoard(PuyoBoard *);
+void destroyBoard(PuyoBoard *board);
+void destroyAllPuyo(PuyoBoard *board);
+void clearBuffer(PuyoBoard *board);
 
 // puyo related functions
 //void checkForPairs(PuyoBoard, unsigned int);

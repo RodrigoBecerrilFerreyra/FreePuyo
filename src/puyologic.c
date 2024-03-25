@@ -41,16 +41,14 @@ PuyoBoard *initializeBoard(unsigned int rows, unsigned int columns, unsigned int
     }
 
     // initialize buffer with -1
-    for(unsigned int i = 0; i < board->sizeOfBoard; ++i)
-    {
-        board->buffer[i] = -1;
-    }
+    clearBuffer(board);
 
     return board;
 }
 
 void destroyBoard(PuyoBoard *board)
 {
+    destroyAllPuyo(board);
     free(board->slots);  board->slots = NULL;
     free(board->buffer); board->buffer = NULL;
     free(board);         board = NULL;
@@ -99,6 +97,22 @@ void destroyPuyo(PuyoBoard *board, unsigned int index)
     board->slots[index] = NULL;
 }
 
+void destroyAllPuyo(PuyoBoard *board)
+{
+    for(unsigned int puyo = 0; puyo < board->sizeOfBoard; ++puyo)
+    {
+        destroyPuyo(board, puyo);
+    }
+}
+
+void clearBuffer(PuyoBoard *board)
+{
+    for(unsigned int i = 0; i < board->sizeOfBoard; ++i)
+    {
+        board->buffer[i] = -1;
+    }
+}
+
 void dropPuyo(PuyoBoard *board)
 {
     // go through each column and check for floating puyo
@@ -108,7 +122,7 @@ void dropPuyo(PuyoBoard *board)
 
     // always starts at the bottom of column 0
     unsigned int bottomOfColumn = board->rows + board->hiddenRows;
-    for(unsigned int i = 0; i < board->columns; ++i)
+    for(unsigned int col = 0; col < board->columns; ++col)
     {
         // to move up in a row, subtract the amount of columns
     }
