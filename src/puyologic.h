@@ -1,9 +1,9 @@
- #ifndef PUYOLOGIC_H_
- #define PUYOLOGIC_H_
+#ifndef PUYOLOGIC_H_
+#define PUYOLOGIC_H_
 
- #include <stdbool.h>
+#include <stdbool.h>
 
- /*
+/*
     Sprite states:
     0  - not connected
     1  - connected below
@@ -21,39 +21,39 @@
     13 - left, right, and below
     14 - left, right, and above
     15 - all
-    */
+*/
 
- enum spriteState
- {
-     NONE = 0,
-     D = 1, U = 2, UD = 3,
-     R = 4, RB = 5, RU = 6,  RUD = 7,
-     L = 8, LB = 9, LU = 10, LUD = 11,
-     LR = 12, LRB = 13, LRA = 14, LRUD = 15
- };
+typedef struct Puyo
+{
+    unsigned char color; // the color of the puyo in one letter, e.g. 'r' for red
+    bool connectedTop;
+    bool connectedBot;
+    bool connectedLef;
+    bool connectedRig;
+    unsigned int numConnections;
+} Puyo;
 
- typedef struct Puyo
- {
-     unsigned char color; // the color of the puyo in one letter, e.g. 'r' for red
-     enum spriteState state; // describes which of the 16 sprites are displayed
-     bool readyToPop; // whether or not the puyo will be popped in the next pop check
-     bool checked;
- } Puyo;
+typedef struct PuyoBoard
+{
+    unsigned int rows;
+    unsigned int columns;
+    unsigned int hiddenRows;
+    unsigned int sizeOfBoard;
+    Puyo **slots; // dynamically allocated array holding pointers to all the puyo
+    // starts at the top left of the board and goes left to right, top to bottom including hidden rows
+    // the size of slots will be sizeof(Puyo *) * rows * columns
+    int *buffer; // dynamically allocated array of indeces of size sizeof(int) * rows * columns
+} PuyoBoard;
 
- typedef struct PuyoBoard
- {
-     unsigned int rows;
-     unsigned int columns;
-     unsigned int hiddenRows;
-     Puyo *slots; // dynamically allocated array holding all the puyo
-     // starts at the top left of the board and goes left to right, top to bottom including hidden rows
-     // the size of slots will be sizeof(Puyo) * rows * columns
- } PuyoBoard;
+// board related functions
+PuyoBoard *initializeBoard(unsigned int rows, unsigned int columns, unsigned int hiddenrows);
+void destroyBoard(PuyoBoard *);
 
- PuyoBoard *initializeBoard(unsigned int rows, unsigned int columns, unsigned int hiddenrows);
- void destroyBoard(PuyoBoard);
+// puyo related functions
+//void checkForPairs(PuyoBoard, unsigned int);
+int createPuyo(PuyoBoard *board, unsigned char color, unsigned int index);
+void destroyPuyo(PuyoBoard *board, unsigned int index);
+void dropPuyo(PuyoBoard *board);
 
- // puyo checking functions
- void checkForPairs(PuyoBoard, unsigned int);
 
- #endif //PUYOLOGIC_H_
+#endif //PUYOLOGIC_H_
