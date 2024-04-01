@@ -62,7 +62,7 @@ void destroyBoard(PuyoBoard *board)
     4. goto step 1
 */
 
-int createPuyo(PuyoBoard *board, unsigned char color, unsigned int index)
+int createPuyo(PuyoBoard *board, unsigned int index, unsigned char color)
 {
     // check if index fits in the board
     if(index >= board->sizeOfBoard)
@@ -111,6 +111,19 @@ void clearBuffer(PuyoBoard *board)
     {
         board->buffer[i] = -1;
     }
+}
+
+Rectangle indexToRect(PuyoBoard *board, unsigned int index)
+{
+    /**
+    * Creates a Rectangle object corresponding to the index of the puyo.
+    */
+    unsigned int column;
+    unsigned int row;
+
+    row = index / board->columns;
+    column = index % board->columns;
+    return (Rectangle){.x = column, .y = row, .width = 31, .height = 31}; // 31 is the size of the sprite
 }
 
 bool dropPuyo(PuyoBoard *board)

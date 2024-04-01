@@ -2,6 +2,7 @@
 #define PUYOLOGIC_H_
 
 #include <stdbool.h>
+#include "raylib.h"
 
 /*
     Sprite states:
@@ -26,10 +27,7 @@
 typedef struct Puyo
 {
     unsigned char color; // the color of the puyo in one letter, e.g. 'r' for red
-    bool connectedTop;
-    bool connectedBot;
-    bool connectedLef;
-    bool connectedRig;
+    bool connections[4]; // in WASD order
     unsigned int numConnections;
 } Puyo;
 
@@ -53,9 +51,11 @@ void clearBuffer(PuyoBoard *board);
 
 // puyo related functions
 //void checkForPairs(PuyoBoard, unsigned int);
-int createPuyo(PuyoBoard *board, unsigned char color, unsigned int index);
+int createPuyo(PuyoBoard *board, unsigned int index, unsigned char color);
 void destroyPuyo(PuyoBoard *board, unsigned int index);
 bool dropPuyo(PuyoBoard *board);
 
+// raylib related functions
+Rectangle indexToRect(PuyoBoard *board, unsigned int index);
 
 #endif //PUYOLOGIC_H_
