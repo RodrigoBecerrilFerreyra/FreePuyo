@@ -113,19 +113,101 @@ void clearBuffer(PuyoBoard *board)
     }
 }
 
-void dropPuyo(PuyoBoard *board)
+bool dropPuyo(PuyoBoard *board)
 {
     // go through each column and check for floating puyo
     // move all puyo above it down as many spaces as needed
     // check column again, repeat if necessary
     // move to the next column
 
+    int emptySpace;
+    unsigned int puyoToMove;
+
     // always starts at the bottom of column 0
-    unsigned int bottomOfColumn = board->rows + board->hiddenRows;
+    const unsigned int numRows = board->rows + board->hiddenRows;
+
+    // columnsTouched[n] is true if puyo were dropped, false otherwise
+    bool columnsTouched[board->columns];
     for(unsigned int col = 0; col < board->columns; ++col)
     {
+        columnsTouched[col] = false;
+        emptySpace = -1;
+
+        int cursor = col + numRows;
         // to move up in a row, subtract the amount of columns
+        // until you reach < 0 (off the board)
+
+        /* step 1: start from the bottom of the column. If it's empty, no need to proceed
+         * step 2: move up in the column. To move up in a column, subtract the amount of columns
+         *   if no puyo are found, the loop exits and nothing is done
+         * step 3: keep track of the puyo until there's an empty space. Take note of the index of the empty space.
+         *   Then, keep track of the empty spaces until there's a puyo found.
+         *   (if none are found (only empty spaces), refer to 2.5)
+         * step 4: take note of the index the separated puyo. Move the Puyo into the empty space previously noted.
+         *   Set columnsTouched to true. Move the index of the empty space one up (the next empty space available above).
+         *   repeat this process for all puyo in the column going up until the cursor is off the board.
+         */
+
+        // step 1
+        if(board->slots[cursor] == NULL) // if the column is empty
+        {
+            continue; // go to the next column
+        }
+
+        // step 2/3: look for the first free space and take note of it
+        while(cursor > 0)
+        {
+            // move the cursor up one
+            cursor -= board->columns;
+            if(cursor < 0) // if the cursor goes off the board
+            {
+                break;
+            }
+            // else if slot is empty
+            if (board->slots[cursor] == NULL)
+            {
+                if(emptySpace == -1) // only assigned the first time around for each column
+                {
+                    emptySpace = cursor;
+                }
+                break;
+            } // else if it's not empty, run the loop again
+        }
+
+        // step 3/4: look for the next puyo to move down
+        while(cursor > 0)
+        {
+            cursor -= board->columns;
+            if(cursor < 0)
+            {
+                break;
+            }
+            if(board->slots[cursor] != NULL) // if a puyo is found (floating)
+            {
+                // mark the column as true
+                columnsTouched[col] = true;
+                // take note of puyo
+                puyoToMove = cursor;
+                // move the puyo to the empty slot
+                board->slots[emptySpace] = board->slots[puyoToMove];
+                board->slots[puyoToMove] = NULL;
+                // move the empty space up one on the column
+                // (this is guaranteed to be on the board)
+                emptySpace -= board->columns;
+            }
+        } // keep doing this until the end of the column is reached
     }
+
+    // check the results of columnsTouched
+    for(unsigned int i = 0; i < board->columns; ++i)
+    {
+        if(columnsTouched[i]) // if true for any column
+        {
+            return true;
+        }
+    }
+    // else
+    return false;
 }
 
 /*

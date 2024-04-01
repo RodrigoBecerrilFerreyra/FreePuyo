@@ -55,7 +55,7 @@ void clearBuffer(PuyoBoard *board);
 //void checkForPairs(PuyoBoard, unsigned int);
 int createPuyo(PuyoBoard *board, unsigned char color, unsigned int index);
 void destroyPuyo(PuyoBoard *board, unsigned int index);
-void dropPuyo(PuyoBoard *board);
+bool dropPuyo(PuyoBoard *board);
 
 
 #endif //PUYOLOGIC_H_
