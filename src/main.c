@@ -12,58 +12,64 @@
     GNU General Public License for more details.
 */
 
+#include <stdio.h>
 #include "raylib.h"
-
-#define numSprites 2
+#include "puyologic.h"
 
 int main(void)
 {
-    //const int numSprites = 2;
-    const int numFrames = 16;
+    int errorcode;
     int screenWidth = 1280;
     int screenHeight = 720;
-    int offset[numSprites] = {0, 1};
-    int timeBuffer[2];
 
     InitWindow(screenWidth, screenHeight, "raylib [core] example - basic window");
     SetTargetFPS(60);
 
     Texture2D puyo = LoadTexture("res/puyo/Aqua.png");
-    Rectangle source = {.x = 1.0f, .y = 1.0f, .width = 32.0f, .height = 32.0f};
-    Rectangle dest = {.x = 0, .y = source.height, .width = source.width, .height = source.height};
+    Rectangle source = {.x = 1.0f, .y = 1.0f, .width = 31.0f, .height = 31.0f};
+    //Rectangle dest = {.x = 0, .y = source.height, .width = source.width, .height = source.height};
 
-    timeBuffer[0] = (int)GetTime();
-    timeBuffer[1] = timeBuffer[0];
+    PuyoBoard *board = initializeBoard(12, 6, 1);
+    if(board == NULL)
+    {
+        return 1;
+    }
+
+    errorcode = createPuyo(board, 72, 'r');
+    if(errorcode != 0)
+    {
+        printf("Error code: %d\n", errorcode);
+        return errorcode;
+    }
+
+    errorcode = createPuyo(board, 0, 'r');
+    if(errorcode != 0)
+    {
+        printf("Error code: %d\n", errorcode);
+        return errorcode;
+    }
 
     while (!WindowShouldClose())    // Detect window close button or ESC key
     {
-        // run the code inside the if statement once every second
-        timeBuffer[0] = (int)GetTime();
-        if(timeBuffer[0] != timeBuffer[1])
-        {
-            timeBuffer[1] = timeBuffer[0];
-            // increment every number in offset, making sure to roll back the index
-            for(int i = 0; i < numSprites; ++i)
-            {
-                offset[i] += 1;
-                if(offset[i] > numFrames)
-                {
-                    offset[i] = 0;
-                }
-            }
-        }
-
 
         BeginDrawing();
         ClearBackground(RAYWHITE);
-        Rectangle source0 = source;
-        Rectangle source1 = source;
-        source0.x = (32 * offset[0]) + 1;
-        source1.x = (32 * offset[1]) + 1;
-        DrawTexturePro(puyo, source0, (Rectangle) {.x = 0, .y = 0, .width = 32, .height = 32}, (Vector2){0, 0}, 0, WHITE);
-        DrawTexturePro(puyo, source1, (Rectangle) {.x = 31, .y = 0, .width = 32, .height = 32}, (Vector2){0, 0}, 0, WHITE);
+        //DrawTexturePro(puyo, source, indexToRect(board, ), (Vector2){0, 0}, 0, WHITE);
+        //DrawTexturePro(puyo, source1, (Rectangle) {.x = 31, .y = 0, .width = 32, .height = 32}, (Vector2){0, 0}, 0, WHITE);
+
+        // draw every single puyo
+        for(unsigned int slot = 0; slot < board->sizeOfBoard; ++slot)
+        {
+            Rectangle dest = indexToRect(board, slot);
+            if(board->slots[slot] != NULL)
+            //if(1)
+            {
+                DrawTexturePro(puyo, source, dest, (Vector2){0, 0}, 0, WHITE);
+            }
+        }
 
         EndDrawing();
+        dropPuyo(board);
     }
 
 
