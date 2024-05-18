@@ -123,6 +123,7 @@ Rectangle indexToRect(PuyoBoard *board, unsigned int index)
 
     row = index / board->columns;
     column = index % board->columns;
+    row *= 31; column *= 31;
     return (Rectangle){.x = column, .y = row, .width = 31, .height = 31}; // 31 is the size of the sprite
 }
 
@@ -136,7 +137,6 @@ bool dropPuyo(PuyoBoard *board)
     int emptySpace;
     unsigned int puyoToMove;
 
-    // always starts at the bottom of column 0
     const unsigned int numRows = board->rows + board->hiddenRows;
 
     // columnsTouched[n] is true if puyo were dropped, false otherwise
@@ -146,7 +146,8 @@ bool dropPuyo(PuyoBoard *board)
         columnsTouched[col] = false;
         emptySpace = -1;
 
-        int cursor = col + numRows;
+        // always starts at the bottom of column 0
+        int cursor = ((numRows - 1) * board->columns) + col;
         // to move up in a row, subtract the amount of columns
         // until you reach < 0 (off the board)
 
@@ -162,6 +163,7 @@ bool dropPuyo(PuyoBoard *board)
          */
 
         // step 1
+        // TODO: Moving puyo down fails if the bottom slot is empty for any given column (e.g. if there's a Puyo on row 1 but not row 0)
         if(board->slots[cursor] == NULL) // if the column is empty
         {
             continue; // go to the next column
